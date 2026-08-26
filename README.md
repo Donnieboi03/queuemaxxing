@@ -73,7 +73,3 @@ python demo/stress.py http --messages 2000 --producers 4 --consumers 4
 - Durable local JSONL WAL (no Redis/Postgres/SQS)
 - MPMC-safe (`threading` lock per queue + HTTP worker pool)
 - C++ port / Pub/Sub code deferred (see DESIGN for Pub/Sub write-up)
-
-## Submit
-
-Email the GitHub repo link to **[redacted]**.

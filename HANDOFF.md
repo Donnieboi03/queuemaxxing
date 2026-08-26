@@ -26,7 +26,7 @@ Read this before coding. Design authority: [PLAN.md](./PLAN.md), [DESIGN.md](./D
 1. Optional C++ port (deferred)
 2. Optional Pub/Sub topic fan-out demo
 3. WAL snapshot compaction
-4. Push to GitHub when ready to email [redacted]
+4. Push to GitHub when ready to submit
 
 ## Commands
 
