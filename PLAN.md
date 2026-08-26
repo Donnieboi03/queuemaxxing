@@ -376,3 +376,32 @@ hot threads, Redis, etc.
 **MPMC frankenstein queue: staged by time → ready by priority+seq → in-flight
 with transit_id+VT; shared worker pool + per-queue mutex; local JSONL WAL;
 Pub/Sub later = publish fan-out into per-subscription copies of that engine.**
+
+---
+
+## 11. C++ port (`feat/cpp-port`)
+
+Python remains the primary Artie path. C++ under `cpp/` mirrors the same knobs
+and lanes for a systems show-of-effort.
+
+| Item | Status |
+| --- | --- |
+| Branch | `feat/cpp-port` |
+| Engine | staged / ready / in-flight + `std::mutex` |
+| WAL | JSONL + fsync (no Python byte-interop required) |
+| HTTP | cpp-httplib (`queuemaxxing_cpp`) |
+| Stress | `queuemaxxing_stress` → `tmp/stress-cpp-*.json` |
+
+### Parity checklist
+
+| Capability | Python | C++ |
+| --- | --- | --- |
+| FIFO / LIFO | yes | yes |
+| Priority | yes | yes |
+| Delay / staged | yes | yes |
+| VT redelivery + stale ack | yes | yes |
+| WAL restart | yes | yes |
+| MPMC stress | yes | yes |
+| HTTP enqueue/receive/ack | yes | yes |
+| Prometheus metrics | yes | no (out of scope) |
+| Pub/Sub | docs only | no |

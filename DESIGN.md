@@ -13,6 +13,15 @@ One composable queue with orthogonal knobs:
 | **Priority** | Primary key on the ready heap |
 | **Delay** | `available_at`; message sits in **staged** until due |
 
+### Implementations
+
+| Runtime | Role | Location |
+| --- | --- | --- |
+| **Python** | Primary submission (complete on `main`) | `src/queuemaxxing/` |
+| **C++** | Same design, second implementation (`feat/cpp-port`) | `cpp/` |
+
+Both use staged → ready → in-flight + local JSONL WAL + VT leases. WAL formats need not be byte-identical across languages.
+
 Queue default delay + optional per-message override:
 
 `effective_delay = message.delay ?? queue.default_delay`
