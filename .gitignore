@@ -31,3 +31,7 @@ data/
 *.db-journal
 *.db-wal
 *.db-shm
+
+# Local scratch: stress reports, ad-hoc WALs (keep README tracked)
+tmp/*
+!tmp/README.md
