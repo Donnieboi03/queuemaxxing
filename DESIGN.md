@@ -17,10 +17,21 @@ One composable queue with orthogonal knobs:
 
 | Runtime | Role | Location |
 | --- | --- | --- |
-| **Python** | Primary submission (complete on `main`) | `src/queuemaxxing/` |
-| **C++** | Same design, second implementation (`feat/cpp-port`) | `cpp/` |
+| **Python** | Primary submission (complete on `main`) | `src_py/queuemaxxing/` |
+| **C++** | Same design, second implementation (`feat/cpp-port`) | `src_cpp/` |
 
 Both use staged → ready → in-flight + local JSONL WAL + VT leases. WAL formats need not be byte-identical across languages.
+
+### Performance (same machine, indicative)
+
+| Mode | Enqueue msg/s | Consume msg/s | What dominates |
+| --- | --- | --- | --- |
+| Python engine (mem) | ~3.5k | ~1.7k | Lock + interpreter + logging/metrics |
+| Python engine (WAL+fsync) | ~few k | ~few k | fsync + Python |
+| C++ engine (mem, 20k/8×8) | ~228k | ~151k | Lock + heap ops (CPU) |
+| C++ engine (WAL+fsync) | ~22k | ~10k | Disk fsync |
+
+**Takeaway:** the design is **not network-bound** in these benches. In-memory C++ shows the lock/CPU ceiling; with WAL both languages are **fsync/I/O-bound**, but C++ still clears Python by roughly an order of magnitude here. HTTP TestClient benches sit below raw engine rates because of framework overhead, not the NIC.
 
 Queue default delay + optional per-message override:
 

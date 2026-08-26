@@ -381,16 +381,19 @@ Pub/Sub later = publish fan-out into per-subscription copies of that engine.**
 
 ## 11. C++ port (`feat/cpp-port`)
 
-Python remains the primary Artie path. C++ under `cpp/` mirrors the same knobs
+Python remains the primary Artie path. C++ under `src_cpp/` mirrors the same knobs
 and lanes for a systems show-of-effort.
 
 | Item | Status |
 | --- | --- |
 | Branch | `feat/cpp-port` |
+| Layout | `src_py/` (Python) · `src_cpp/` (C++) |
 | Engine | staged / ready / in-flight + `std::mutex` |
 | WAL | JSONL + fsync (no Python byte-interop required) |
 | HTTP | cpp-httplib (`queuemaxxing_cpp`) |
 | Stress | `queuemaxxing_stress` → `tmp/stress-cpp-*.json` |
+
+Speed comparison and binding analysis: [DESIGN.md](./DESIGN.md) §Performance.
 
 ### Parity checklist
 

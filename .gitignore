@@ -37,4 +37,4 @@ tmp/*
 !tmp/README.md
 
 # C++ build
-cpp/build/
+src_cpp/build/
