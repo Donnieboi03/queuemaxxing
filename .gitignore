@@ -1,0 +1,33 @@
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+*.iml
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Language / build (adjust once stack is chosen)
+node_modules/
+dist/
+build/
+target/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local queue durability files (keep empty dir via .gitkeep if needed)
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
