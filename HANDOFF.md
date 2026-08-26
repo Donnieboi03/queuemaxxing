@@ -55,8 +55,16 @@ python demo/stress.py http --messages 2000 --producers 4 --consumers 4
 
 ```text
 pytest tests/unit tests/integration tests/e2e -q
-23 passed (plus throughput smoke once landed)
+25 passed
+
+python demo/stress.py engine --messages 3000 --producers 4 --consumers 4
+  enqueue ~3490 msg/s, consume ~1710 msg/s
+
+python demo/stress.py http --messages 500 --producers 2 --consumers 2
+  enqueue ~1300 msg/s, consume ~730 msg/s
 ```
+
+Git: `main` ahead of `origin/main` by 8 slice commits (not pushed).
 
 ## Blockers
 
