@@ -1,40 +1,79 @@
 # Queuemaxxing
 
-Artie take-home: a composable “Frankenstein” queue over HTTP, plus a small app that uses it.
-
-## What this is
-
-Build an HTTP service that exposes a **durable, in-process queue** whose delivery semantics can be composed from:
+Artie take-home: a composable durable “Frankenstein” queue over HTTP (Python).
 
 | Knob | Meaning |
 | --- | --- |
 | **Order** | FIFO or LIFO |
-| **Priority** | Higher-priority messages dequeue before lower |
-| **Delay** | Message becomes visible only after a delay |
+| **Priority** | Higher priority dequeues first |
+| **Delay** | Invisible until `available_at` |
 
-Those combine so you can run e.g. **delay + priority + LIFO**, or **priority + FIFO**, from one implementation.
+## Quick start
 
-Then ship a **simple client / demo app** that enqueues, dequeues (or consumes), and exercises those modes.
+```bash
+cd queuemaxxing
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
 
-### Hard constraints
+# tests
+pytest tests/unit tests/integration tests/e2e -q
 
-- **Durable across restarts** — crash or restart must not lose messages.
-- **No external queue or DB** — persistence must live in this process’s own storage (e.g. local files / embedded store you own). Do not offload to SQS, Redis, Postgres, etc.
-- **Concurrency-safe** — multiple clients / goroutines / threads must be able to use the queue safely.
+# server (WAL under ./data by default)
+queuemaxxing --port 8080
+# or local scratch: QUEUEMAXXING_DATA=tmp/data queuemaxxing --port 8080
+```
 
-### Design write-ups (expected in this repo)
+### Demo (MPMC)
 
-Answer these in `DESIGN.md` (or expand this README):
+```bash
+# terminal 1
+QUEUEMAXXING_DATA=tmp/data queuemaxxing --port 8080
 
-1. How do you handle **replay** messages?
-2. How would you refactor this into **Pub/Sub**?
-3. With more time, what **features** would you add?
-4. Why would someone pick this over **SQS / RabbitMQ / Pulsar**?
+# terminal 2
+python demo/producer.py --queue demo --producers 4 --each 25
+
+# terminal 3
+python demo/consumer.py --queue demo --consumers 4 --seconds 15
+```
+
+### Throughput stress
+
+Writes reports under `tmp/stress-*.json` (gitignored scratch; see `tmp/README.md`).
+
+```bash
+# in-process engine (memory)
+python demo/stress.py engine --messages 10000 --producers 4 --consumers 4
+
+# engine + durable WAL under tmp/data
+python demo/stress.py engine --messages 5000 --producers 4 --consumers 4 --wal
+
+# HTTP API (TestClient, no separate server process)
+python demo/stress.py http --messages 2000 --producers 4 --consumers 4
+```
+
+### HTTP
+
+- `POST /queues` — create `{ name, order, default_delay, visibility_timeout }`
+- `POST /queues/{name}/messages` — `{ body, priority?, delay? }`
+- `POST /queues/{name}/receive?wait_seconds=0` — message or `204`
+- `POST /queues/{name}/ack` — `{ transit_id }`
+- `GET /health`, `GET /metrics`, `GET /debug/integrity`
+
+## Docs
+
+| Doc | Role |
+| --- | --- |
+| [PLAN.md](./PLAN.md) | Design thought process |
+| [DESIGN.md](./DESIGN.md) | Architecture + Artie Q&A |
+| [HANDOFF.md](./HANDOFF.md) | Agent progress / next slice |
+| [tmp/README.md](./tmp/README.md) | Local scratch / stress artifacts |
+
+## Constraints
+
+- Durable local JSONL WAL (no Redis/Postgres/SQS)
+- MPMC-safe (`threading` lock per queue + HTTP worker pool)
+- C++ port / Pub/Sub code deferred (see DESIGN for Pub/Sub write-up)
 
 ## Submit
 
 Email the GitHub repo link to **[redacted]**.
-
-## Status
-
-Scaffold only — implementation TBD.
