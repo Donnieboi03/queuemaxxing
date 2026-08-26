@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Allow running without install: python demo/stress.py ...
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "src_py"))
 
 from fastapi.testclient import TestClient
 

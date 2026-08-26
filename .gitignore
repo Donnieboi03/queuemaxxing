@@ -35,3 +35,6 @@ data/
 # Local scratch: stress reports, ad-hoc WALs (keep README tracked)
 tmp/*
 !tmp/README.md
+
+# C++ build
+src_cpp/build/

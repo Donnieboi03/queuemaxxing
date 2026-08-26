@@ -25,7 +25,13 @@ dev = [
 [project.scripts]
 queuemaxxing = "queuemaxxing.main:main"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src_py/queuemaxxing"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src_py/queuemaxxing" = "queuemaxxing"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src_py"]
 timeout = 60

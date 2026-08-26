@@ -6,65 +6,43 @@ Read this before coding. Design authority: [PLAN.md](./PLAN.md), [DESIGN.md](./D
 
 | Field | Value |
 | --- | --- |
-| Phase | **Python package complete** (C++ **not** started) |
-| Current slice | Stress harness + tmp/ scratch + slice commits |
-| Pub/Sub code | Out of scope this phase (see DESIGN.md) |
+| Phase | **Merged to `main`** — Python + C++ dual runtime |
+| Layout | `src_py/` Python · `src_cpp/` C++ |
+| Primary submit | Python |
 
 ## Done
 
-- Scaffold: `pyproject.toml`, `src/queuemaxxing/`, `demo/`, tests pyramid, README
-- `QueueEngine`: staged time-heap → ready composite heap → in-flight + VT
-- JSONL WAL append/fsync + replay / restart
-- Visibility sweeper + transit_id redelivery
-- Observability: structlog + Prometheus `/metrics` + `/debug/integrity`
-- FastAPI MPMC API + producer/consumer demos
-- Unit / integration / e2e tests (incl. MPMC stress)
-- `tmp/` scratch (gitignored) + `demo/stress.py` throughput harness
+- Python frankenstein queue (`src_py/`)
+- C++ port (`src_cpp/`): engine, WAL, VT, HTTP, stress
+- Layout `src_py` / `src_cpp`; performance notes in DESIGN
+- `feat/cpp-port` merged into `main`
 
-## Next (future phases)
+## Next
 
-1. Optional C++ port (deferred)
-2. Optional Pub/Sub topic fan-out demo
-3. WAL snapshot compaction
-4. Push to GitHub when ready to submit
+1. Optional Pub/Sub topic fan-out demo
+2. WAL snapshot compaction
+3. Submit when ready
 
 ## Commands
 
+### Python
 ```bash
-cd /Users/donnieb/Desktop/Code/queuemaxxing
-source .venv/bin/activate   # or: python -m venv .venv && pip install -e ".[dev]"
+source .venv/bin/activate && pip install -e ".[dev]"
 pytest tests/unit tests/integration tests/e2e -q
-
-QUEUEMAXXING_DATA=tmp/data queuemaxxing --port 8080
-python demo/producer.py --queue demo
-python demo/consumer.py --queue demo --seconds 15
-
 python demo/stress.py engine --messages 10000 --producers 4 --consumers 4
-python demo/stress.py engine --messages 5000 --wal
-python demo/stress.py http --messages 2000 --producers 4 --consumers 4
 ```
 
-## Rules for agents
-
-- Do **not** start C++ or Pub/Sub topic implementation unless a new plan says so
-- Keep integrity auditor green after engine changes
-- Put local/stress artifacts under `tmp/` (not in git)
-- Update this file after meaningful work
-
-## Last tests
-
-```text
-pytest tests/unit tests/integration tests/e2e -q
-25 passed
-
-python demo/stress.py engine --messages 3000 --producers 4 --consumers 4
-  enqueue ~3490 msg/s, consume ~1710 msg/s
-
-python demo/stress.py http --messages 500 --producers 2 --consumers 2
-  enqueue ~1300 msg/s, consume ~730 msg/s
+### C++
+```bash
+cmake -S src_cpp -B src_cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build src_cpp/build -j
+ctest --test-dir src_cpp/build --output-on-failure
+./src_cpp/build/queuemaxxing_stress --messages 20000 --producers 8 --consumers 8
 ```
 
-Git: `main` ahead of `origin/main` by 8 slice commits (not pushed).
+## Rules
+
+- Python remains primary for submission
+- No force-push to `main`
 
 ## Blockers
 
